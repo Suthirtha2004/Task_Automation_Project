@@ -2,7 +2,7 @@ let asyncHandler = require('express-async-handler');
 let express = require('express');
 let mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('../../Model/UserModel');
+const User = require('../Model/UserModel');
 const jwt = require('jsonwebtoken');
 
 //User Registration Function using asunc handler

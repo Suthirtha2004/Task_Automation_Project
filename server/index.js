@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const authrouter = require('./App/Router/authRoutes');
 const userRouter = require('./App/Router/userRoutes')
+const taskRouter = require('./App/Router/taskRoutes');
 require('dotenv').config();
 
 // Validate environment variables
@@ -17,7 +18,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/team', authrouter);
-app.use('/team/user',userRouter)
+app.use('/team/user',userRouter);
+app.use('/team/task',taskRouter);
 
 // MongoDB Connection
 mongoose.connect(process.env.DBURL)
