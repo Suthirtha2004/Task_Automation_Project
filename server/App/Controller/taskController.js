@@ -65,8 +65,7 @@ const getTask = async(req,res)=>{
             });
         }
         else{
-            const tasks = await Task.find().populate("assignedTo","name email");
-
+            const tasks = await Task.find({createdBy : req.user.id});
             console.log("Task Fetched successfully");
             if(tasks) {
                 res.status(201).json(tasks);
@@ -128,7 +127,7 @@ const updateTask = async(req,res)=>{
                 priority,
                 deadline
             }
-            let updateData = await Task.findbyIdAndUpdate(id,
+            let updateData = await Task.findByIdAndUpdate(id,
                 updateTaskValue,
                 {new : true}
             );
@@ -161,7 +160,7 @@ const deleteTask = async(req,res)=>{
         }
         else{
             let id = req.params.id;
-            const deletedTask = await Task.findbyIdAndDelete(id);
+            const deletedTask = await Task.findByIdAndDelete(id);
             if(deletedTask){
                 res.status(201).json({message : "Task deleted successfully"});
             }else{
@@ -169,7 +168,7 @@ const deleteTask = async(req,res)=>{
             }
         }
     }catch(error){
-        res.status(401).josn({
+        res.status(401).json({
             message : "Error in deleting task"
         });
     }

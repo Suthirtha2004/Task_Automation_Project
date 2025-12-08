@@ -11,7 +11,7 @@ const taskSchema = mongoose.Schema({
     },
     createdBy : {
         type : mongoose.Schema.ObjectId,
-        ref : "User",
+        ref : "User"
     },
     assignedTo : {
         type : mongoose.Schema.ObjectId,
