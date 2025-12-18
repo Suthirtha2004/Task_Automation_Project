@@ -1,6 +1,54 @@
+import { use, useState } from "react"
 import { NavLink } from "react-router-dom"
+import { registerUser } from "../Api/AuthService";
 
 export const SignUp = () =>{
+    const [selectedRole,setselectedRole] = useState("employee");
+    const [formData,setFormData] = useState({
+      name:"",
+      email:"",
+      password:"",
+      role : selectedRole
+    });
+
+    
+    const handleInputChange = (e)=>{
+      const {name,value} = e.target;
+      setFormData(prev =>({
+        ...prev,
+        [name]:value
+      }))
+      console.log(formData);
+    }
+
+    const handleSelectedRole = (e)=>{
+      const newRole = e.target.value;
+      setselectedRole(newRole);
+      console.log(newRole);
+      setFormData(prev=>({
+        ...prev,
+        role :  newRole
+      }))
+
+    }
+    
+    const Registeruser = async()=>{
+      try{
+        let response= await registerUser(formData);
+        if(response.status === 201 || response.status === 200){
+          setFormData([...response.data,formData]);
+        }
+        setFormData({name:"",email:"",password:"",role:selectedRole});
+        alert("User registered successfully");
+      }catch(error){
+        alert("error registering user");
+      }
+    }
+    const handlesubmit = async(event)=>{
+      event.preventDefault();
+      Registeruser();
+    }
+
     return(
         <>
         <h1>Sign Up Page</h1>
@@ -10,17 +58,31 @@ export const SignUp = () =>{
   </div>
 
   <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form action="#"  className="space-y-6">
+    <form onSubmit={handlesubmit} className="space-y-6">
         <div>
         <label htmlFor="name" className="block text-sm/6 font-medium text-gray-100">Name</label>
         <div className="mt-2">
-          <input id="name" type="text" name="name" required={true} className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+          <input 
+          id = "name"
+          type="text" 
+          name="name"
+          onChange={handleInputChange}
+          value = {formData.name} 
+          required 
+          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
         </div>
       </div>
       <div>
         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-100">Email address</label>
         <div className="mt-2">
-          <input id="email" type="email" name="email" required={true} className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+          <input 
+          id = "email"
+          type="email" 
+          name="email" 
+          onChange={handleInputChange}
+          value ={formData.email}
+          required 
+          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
         </div>
       </div>
 
@@ -28,18 +90,29 @@ export const SignUp = () =>{
         <div className="flex items-center justify-between">
           <label htmlFor="password" className="block text-sm/6 font-medium text-gray-100">Password</label>
           <div className="text-sm">
-            <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</a>
+            <NavLink to="/teamflow" className="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</NavLink>
           </div>
         </div>
         <div className="mt-2">
-          <input id="password" type="password" name="password" required={true} className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+          <input 
+          id ="password"
+          type="password" 
+          name="password"
+          onChange={handleInputChange}
+          value={formData.password} 
+          required 
+          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
 
         </div>
       </div>
       <div>
         <label htmlFor="slect" className="block text-sm/6 font-medium text-gray-100">Role</label>
         <div className="mt-2">
-          <select className="bg-white rounded-2xl">
+          <select 
+          id="role-select"
+          onChange={handleSelectedRole}
+          value={selectedRole}
+          className="bg-white rounded-2xl">
               <option value="admin">Admin</option>
               <option value="employee">Employee</option>
         </select>

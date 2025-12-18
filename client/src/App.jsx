@@ -5,6 +5,9 @@ import { SignUp } from './Pages/SignUp'
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import { WebLayout } from './Components/Layout/WebLayout'
 import { Home } from './Pages/Home'
+import { AuthContextProvider } from './context/AuthContext'
+import { AdminDashboard } from './Pages/AdminDashboard'
+import { UserDashboard } from './Pages/UserDashBoard'
 
 function App() {
 
@@ -14,7 +17,7 @@ function App() {
       element : <WebLayout/>,
       children : [
         {
-          path : '/teamflow',
+          path : '/teamflow/home',
           element : <Home/>
         },
         {
@@ -25,6 +28,15 @@ function App() {
           path : '/teamflow/login',
           element : <Login/>
         },
+        {
+          path : '/teamflow/admin',
+          element : <AdminDashboard/>
+        },
+        {
+          path : '/teamflow/user',
+          element : <UserDashboard/>
+        }
+
       ]
     },
 
@@ -32,7 +44,10 @@ function App() {
 
   return (
     <>
-     <RouterProvider router={router}/>
+    <AuthContextProvider>
+      <RouterProvider router={router}/>
+    </AuthContextProvider>
+     
     </>
   )
 }

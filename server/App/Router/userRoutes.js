@@ -1,6 +1,7 @@
 const express = require('express');
 const validateToken = require('../Middleware/validateToken');
 const validateRoles = require('../Middleware/validateRole');
+const { getMe } = require('../Controller/userController');
 const router = express.Router();
 
 
@@ -14,8 +15,8 @@ router.get(
     }
 );
 
-
-//Employee Access Router
+router.get('/me',validateToken,getMe);
+//Employee Access Route
 
 router.get(
     '/employee',
