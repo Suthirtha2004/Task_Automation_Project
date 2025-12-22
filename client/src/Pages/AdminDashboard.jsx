@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAdminTask, postTask } from "../Api/TaskService"
+import { deleteTask, editTask, getAdminTask, postTask } from "../Api/TaskService"
 
 export const AdminDashboard = ()=>{
 
@@ -7,6 +7,8 @@ export const AdminDashboard = ()=>{
 
     const [prio,setPrio] = useState("low");
     const [status,setStatus] = useState("pending");
+
+    const [editingTaskId,setEditingTaskId] = useState(null);
 
     const [taskData,setTaskData] = useState({
         title:"",
@@ -40,6 +42,27 @@ export const AdminDashboard = ()=>{
         }
     }
 
+    const handleDelete = async(id)=>{
+      try{
+        const res = await deleteTask(id);
+        if(res.status === 200 || res.status === 201){
+          console.log("Task deleted succesfully");
+        }
+        getTaskAssigned();
+      }catch(error){
+          console.log("Internal error",error.message);
+      }
+    }
+
+    const handleEdit = (id)=>{
+        const tasktoEdit =  taskList.find(task => task._id === id);
+        if(tasktoEdit){
+          setTaskData(tasktoEdit);
+          setEditingTaskId(id);
+        }
+      
+    }
+
     const handleInputChange = (e) =>{
         const {name,value} = e.target;
         setTaskData(prev=>({
@@ -68,9 +91,19 @@ export const AdminDashboard = ()=>{
       }))
       console.log(newPrio);
     }
+
     const handleSubmit =async(event)=>{
         event.preventDefault();
+        if(editingTaskId){
+          const res = await editTask(editingTaskId,taskData);
+          if(res.status===200 || res.status === 201){
+            getTaskAssigned();
+            setEditingTaskId(null);
+            setTaskData({title:"",description:"",assignedTo:"",deadline:""});
+          }
+        }else{
         postTaskData();
+        }
     }
 
     useEffect(()=>{
@@ -87,6 +120,10 @@ export const AdminDashboard = ()=>{
                         <p>{task.description}</p>
                         <p>{task.title}</p>
                         <p>{task.priority}</p>
+                        <button onClick={()=>handleDelete(task._id)}className="w-50 rounded-m px-3 py-1.5 mt-5 rounded-4xl bg-blue-700 text-white">Delete Task</button>
+                        <button onClick={()=>handleEdit(task._id)} className="w-50 rounded-m px-3 py-1.5 mt-5 rounded-4xl bg-blue-700 text-white">Edit Task</button>
+
+
                     </li>
             ))}
             </ul>

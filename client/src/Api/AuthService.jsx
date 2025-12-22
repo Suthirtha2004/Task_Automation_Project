@@ -11,3 +11,4 @@ export const loginUser = (loginData) =>{
 export const getUser = () =>{
     return api.get("/user/me");
 }
+
