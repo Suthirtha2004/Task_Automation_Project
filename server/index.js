@@ -5,6 +5,8 @@ const cors = require('cors');
 const authrouter = require('./App/Router/authRoutes');
 const userRouter = require('./App/Router/userRoutes')
 const taskRouter = require('./App/Router/taskRoutes');
+const cron = require('node-cron');
+const { cronStatusChecker } = require('./App/CronJob/cronJob');
 require('dotenv').config();
 
 // Validate environment variables
@@ -17,6 +19,10 @@ if (!process.env.DBURL) {
 app.use(cors());
 app.use(express.json());
 
+//Cron Job Scheduler
+cron.schedule("*/10 * * * * *",()=>{
+    cronStatusChecker();
+})
 app.use('/team', authrouter);
 app.use('/team/user',userRouter);
 app.use('/team/task',taskRouter);
