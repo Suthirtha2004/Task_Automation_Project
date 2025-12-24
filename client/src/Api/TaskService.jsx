@@ -17,6 +17,6 @@ export const deleteTask = (id)=>{
     return api.delete(`/task/admin/deleteTask/${id}`);
 }
 
-export const editTask = (id)=>{
-    return api.put(`/task/admin/updateTask/${id}`);
+export const editTask = (id,taskData)=>{
+    return api.put(`/task/admin/updateTask/${id}`,taskData);
 }
