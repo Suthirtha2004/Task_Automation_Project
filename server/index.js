@@ -20,9 +20,9 @@ app.use(cors());
 app.use(express.json());
 
 //Cron Job Scheduler
-cron.schedule("*/10 * * * * *",()=>{
-    cronStatusChecker();
-})
+// cron.schedule("*/10 * * * * *",()=>{
+//     cronStatusChecker();
+// })
 app.use('/team', authrouter);
 app.use('/team/user',userRouter);
 app.use('/team/task',taskRouter);

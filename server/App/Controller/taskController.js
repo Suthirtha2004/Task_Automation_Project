@@ -174,4 +174,36 @@ const deleteTask = async(req,res)=>{
     }
 }
 
-module.exports = {createTask,getTask,getTaskEmp,updateTask,deleteTask};
+//Update Task Status - Employee
+const updateTaskStatus = async(req,res)=>{
+    try{
+        const role = req.user.role;
+        if(role!="employee"){
+            res.status(400).josn({
+                message:"Access denied"
+            })
+        }else{
+            let id = req.params.id;
+            const {status} = req.body;
+            const updatedStatus = {
+                status
+            };
+            let updateStatusvalue = await Task.findByIdAndUpdate(id,updatedStatus,{new:true});
+            if(updateStatusvalue){
+                res.status(201).json({
+                    message:"Status updated successfully"
+                })
+            }else{
+                res.status(400).json({
+                    message: "Task not found"
+                })
+            }
+        }
+    }catch(error){
+        res.status(401).json({
+            message:"Error in updating status"
+        })
+    }
+}
+
+module.exports = {createTask,getTask,getTaskEmp,updateTask,deleteTask,updateTaskStatus};

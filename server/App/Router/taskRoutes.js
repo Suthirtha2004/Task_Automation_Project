@@ -1,7 +1,7 @@
 const express = require('express');
 const validateToken = require('../Middleware/validateToken');
 const validateRoles = require('../Middleware/validateRole');
-const { createTask, getTask, updateTask, deleteTask, getTaskEmp } = require('../Controller/taskController');
+const { createTask, getTask, updateTask, deleteTask, getTaskEmp, updateTaskStatus } = require('../Controller/taskController');
 const router = express.Router();
 
 //Admin Task access routes
@@ -28,6 +28,7 @@ router.delete('/admin/deleteTask/:id',
     deleteTask
 );
 
+
 // EMPLOYEE TASK VIEW
 
 router.get('/employee/taskview',
@@ -35,5 +36,11 @@ router.get('/employee/taskview',
     validateRoles("employee"),
     getTaskEmp
 );
+
+router.put('/employee/updateStatus/:id',
+    validateToken,
+    validateRoles("employee"),
+    updateTaskStatus
+)
 
 module.exports = router;
