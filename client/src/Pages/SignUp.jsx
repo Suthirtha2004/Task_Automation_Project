@@ -1,7 +1,7 @@
 import { use, useState } from "react"
 import { NavLink } from "react-router-dom"
 import { registerUser } from "../Api/AuthService";
-
+import loginPic from '../Public/Assets/loginPic.jpg';
 export const SignUp = () =>{
     const [selectedRole,setselectedRole] = useState("employee");
     const [formData,setFormData] = useState({
@@ -51,8 +51,10 @@ export const SignUp = () =>{
 
     return(
         <>
-        <h1>Sign Up Page</h1>
-        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-black">
+        <div className="flex items-center justify-center" h-screen style={{ backgroundImage: `url(${loginPic
+        })`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
+
+        <div className="flex w-2xl h-1xl flex-col mt-0.5 mb-0.5 shadow-2xl rounded-4xl justify-center px-6 py-12 lg:px-8 bg-black">
   <div className="sm:mx-auto sm:w-full sm:max-w-sm bg-black">
     <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Sign Up with your account</h2>
   </div>
@@ -131,6 +133,7 @@ export const SignUp = () =>{
        </NavLink>
       <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-300">Read our terms and conditions</a>
   </div>
+</div>
 </div>
         </>
     )

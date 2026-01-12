@@ -20,3 +20,7 @@ export const deleteTask = (id)=>{
 export const editTask = (id,taskData)=>{
     return api.put(`/task/admin/updateTask/${id}`,taskData);
 }
+
+export const editTaskStatus = (id,taskStatus)=>{
+    return api.put(`/task/employee/updateStatus/${id}`,{taskStatus});
+}

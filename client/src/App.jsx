@@ -8,6 +8,7 @@ import { Home } from './Pages/Home'
 import { AuthContextProvider } from './context/AuthContext'
 import { AdminDashboard } from './Pages/AdminDashboard'
 import { UserDashboard } from './Pages/UserDashBoard'
+import { LandingPage } from './Pages/LandingPage'
 
 function App() {
 
@@ -17,28 +18,31 @@ function App() {
       element : <WebLayout/>,
       children : [
         {
-          path : '/teamflow/home',
-          element : <Home/>
+          index: true,
+          element:<LandingPage/>
         },
         {
-          path : '/teamflow/signup',
+          path : 'signup',
           element :<SignUp/>
         },
         {
-          path : '/teamflow/login',
+          path : 'login',
           element : <Login/>
-        },
-        {
-          path : '/teamflow/admin',
-          element : <AdminDashboard/>
-        },
-        {
-          path : '/teamflow/user',
-          element : <UserDashboard/>
         }
-
       ]
     },
+    {
+      path: '/teamflow/home',
+      element: <Home/>
+    },
+    {
+      path : '/teamflow/admin',
+      element : <AdminDashboard/>
+    },
+    {
+      path : '/teamflow/user',
+      element : <UserDashboard/>
+    }
 
   ])
 

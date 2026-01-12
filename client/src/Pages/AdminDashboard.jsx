@@ -1,238 +1,233 @@
 import { useEffect, useState } from "react";
-import { deleteTask, editTask, getAdminTask, postTask } from "../Api/TaskService"
+import {
+  deleteTask,
+  editTask,
+  getAdminTask,
+  postTask,
+} from "../Api/TaskService";
 
-export const AdminDashboard = ()=>{
+export const AdminDashboard = () => {
+  const [taskList, setTaskList] = useState([]);
+  const [prio, setPrio] = useState("low");
+  const [status, setStatus] = useState("pending");
+  const [editingTaskId, setEditingTaskId] = useState(null);
 
-    const [taskList,setTaskList] = useState([]);
+  const [taskData, setTaskData] = useState({
+    title: "",
+    description: "",
+    assignedTo: "",
+    priority: prio,
+    status: status,
+    deadline: "",
+  });
 
-    const [prio,setPrio] = useState("low");
-    const [status,setStatus] = useState("pending");
-
-    const [editingTaskId,setEditingTaskId] = useState(null);
-
-    const [taskData,setTaskData] = useState({
-        title:"",
-        description:"",
-        assignedTo : "",
-        priority : prio,
-        status : status,
-        deadline: ""
-    })
-    const getTaskAssigned=async()=>{
-        try{
-            const res=await getAdminTask();
-            console.log(res.data);
-            setTaskList(res.data);
-        }catch(error){
-            console.log(error.message);
-        }
+  const getTaskAssigned = async () => {
+    try {
+      const res = await getAdminTask();
+      setTaskList(res.data);
+    } catch (error) {
+      console.log(error.message);
     }
+  };
 
-    const postTaskData = async() =>{
-        try{
-            const res = await postTask(taskData);
-            if(res.status === 201 || res.status === 200){
-              setTaskData([...res.data,taskData]);
-              
-            }
-            setTaskData({title:"",description:"",assignedTo:"",deadline:""});
-            console.log("Task Created Successfully;")
-        }catch(error){
-          console.log("Task not created",error.message);
-        }
-    }
-
-    const handleDelete = async(id)=>{
-      try{
-        const res = await deleteTask(id);
-        if(res.status === 200 || res.status === 201){
-          console.log("Task deleted succesfully");
-        }
+  const postTaskData = async () => {
+    try {
+      const res = await postTask(taskData);
+      if (res.status === 200 || res.status === 201) {
         getTaskAssigned();
-      }catch(error){
-          console.log("Internal error",error.message);
+        setTaskData({
+          title: "",
+          description: "",
+          assignedTo: "",
+          deadline: "",
+          priority: prio,
+          status: status,
+        });
       }
+    } catch (error) {
+      console.log(error.message);
     }
+  };
 
-    const handleEdit = (id)=>{
-        const tasktoEdit =  taskList.find(task => task._id === id);
-        if(tasktoEdit){
-          setTaskData(tasktoEdit);
-          setEditingTaskId(id);
-        }
-      
+  const handleDelete = async (id) => {
+    await deleteTask(id);
+    getTaskAssigned();
+  };
+
+  const handleEdit = (id) => {
+    const task = taskList.find((t) => t._id === id);
+    if (task) {
+      setTaskData(task);
+      setEditingTaskId(id);
+      setPrio(task.priority);
+      setStatus(task.status);
     }
+  };
 
-    const handleInputChange = (e) =>{
-        const {name,value} = e.target;
-        setTaskData(prev=>({
-          ...prev,
-          [name]:value
-        }))
-        console.log(taskData);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setTaskData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (editingTaskId) {
+      await editTask(editingTaskId, taskData);
+      setEditingTaskId(null);
+    } else {
+      postTaskData();
     }
+    getTaskAssigned();
+  };
 
-    const handleSelectedStatus = (e)=>{
-        const newStatus = e.target.value;
-        setStatus(newStatus);
-        setTaskData(prev=>({
-            ...prev,
-            status:newStatus
-        }))
-        console.log(newStatus);
-    }
+  useEffect(() => {
+    getTaskAssigned();
+  }, []);
 
-    const handleSelectedPrio = (e)=>{
-      const newPrio = e.target.value;
-      setPrio(newPrio);
-      setTaskData(prev=>({
-        ...prev,
-        priority : newPrio
-      }))
-      console.log(newPrio);
-    }
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      {/* Header */}
+      <div className="mb-8 flex justify-center">
+        <div className="bg-indigo-600 text-white px-8 py-3 rounded-2xl shadow-lg">
+          <h1 className="text-2xl font-bold">Admin Dashboard 🛠️</h1>
+        </div>
+      </div>
 
-    const handleSubmit =async(event)=>{
-        event.preventDefault();
-        if(editingTaskId){
-          const res = await editTask(editingTaskId,taskData);
-          if(res.status===200 || res.status === 201){
-            getTaskAssigned();
-            setEditingTaskId(null);
-            setTaskData({title:"",description:"",assignedTo:"",deadline:""});
-          }
-        }else{
-        postTaskData();
-        }
-    }
-
-    useEffect(()=>{
-        getTaskAssigned();
-    },[])
-    return(
-        <>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        {/* Task List */}
         <div>
-            <p>Hello Admin !</p>
-            <h2>Task Assigned List</h2>
-            <ul>
-                {taskList.map(task=>(
-                    <li key={task._id}>
-                        <p>{task.description}</p>
-                        <p>{task.title}</p>
-                        <p>{task.priority}</p>
-                        <button onClick={()=>handleDelete(task._id)}className="w-50 rounded-m px-3 py-1.5 mt-5 rounded-4xl bg-blue-700 text-white">Delete Task</button>
-                        <button onClick={()=>handleEdit(task._id)} className="w-50 rounded-m px-3 py-1.5 mt-5 rounded-4xl bg-blue-700 text-white">Edit Task</button>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">
+            Assigned Tasks
+          </h2>
 
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {taskList.map((task) => (
+              <li
+                key={task._id}
+                className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+              >
+                <h3 className="font-semibold text-lg text-gray-800">
+                  {task.title}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {task.description}
+                </p>
 
-                    </li>
+                <div className="flex justify-between items-center mt-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium
+                      ${
+                        task.priority === "high"
+                          ? "bg-red-100 text-red-600"
+                          : task.priority === "medium"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-green-100 text-green-600"
+                      }
+                    `}
+                  >
+                    {task.priority}
+                  </span>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(task._id)}
+                      className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(task._id)}
+                      className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </li>
             ))}
-            </ul>
+          </ul>
         </div>
-        <div>
-        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-black">
-  <div className="sm:mx-auto sm:w-full sm:max-w-sm bg-black">
-    <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Create And Assign Task</h2>
-  </div>
 
-  <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-        <label htmlFor="title" className="block text-sm/6 font-medium text-gray-100">Title</label>
-        <div className="mt-2">
-          <input 
-          id = "title"
-          type="text" 
-          name="title"
-          onChange={handleInputChange}
-          value = {taskData.title}
-          required 
-          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+        {/* Task Form */}
+        <div className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-xl font-bold mb-6 text-gray-800">
+            {editingTaskId ? "Edit Task" : "Create Task"}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              name="title"
+              value={taskData.title}
+              onChange={handleInputChange}
+              placeholder="Title"
+              className="w-full border rounded-lg px-3 py-2"
+              required
+            />
+
+            <textarea
+              name="description"
+              value={taskData.description}
+              onChange={handleInputChange}
+              placeholder="Description"
+              className="w-full border rounded-lg px-3 py-2"
+              required
+            />
+
+            <input
+              name="assignedTo"
+              value={taskData.assignedTo}
+              onChange={handleInputChange}
+              placeholder="Assigned To"
+              className="w-full border rounded-lg px-3 py-2"
+              required
+            />
+
+            <div className="flex gap-4">
+              <select
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setTaskData((p) => ({ ...p, status: e.target.value }));
+                }}
+                className="w-1/2 border rounded-lg px-3 py-2"
+              >
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <select
+                value={prio}
+                onChange={(e) => {
+                  setPrio(e.target.value);
+                  setTaskData((p) => ({ ...p, priority: e.target.value }));
+                }}
+                className="w-1/2 border rounded-lg px-3 py-2"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <input
+              type="date"
+              name="deadline"
+              value={taskData.deadline}
+              onChange={handleInputChange}
+              className="w-full border rounded-lg px-3 py-2"
+              required
+            />
+
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700"
+            >
+              {editingTaskId ? "Update Task" : "Create Task"}
+            </button>
+          </form>
         </div>
       </div>
-      <div>
-        <label htmlFor="description" className="block text-sm/6 font-medium text-gray-100">Description</label>
-        <div className="mt-2">
-          <input 
-          id = "description"
-          type="text" 
-          name="description" 
-          onChange={handleInputChange}
-          value={taskData.description}
-          required 
-          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
-        </div>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between">
-          <label htmlFor="assignedTo" className="block text-sm/6 font-medium text-gray-100">Assigned To</label>
-        </div>
-        <div className="mt-2">
-          <input 
-          id ="assignedTo"
-          type="text" 
-          name="assignedTo"
-          onChange={handleInputChange}
-          value = {taskData.assignedTo}
-          required 
-          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
-
-        </div>
-      </div>
-      <div>
-        <label htmlFor="status" className="block text-sm/6 font-medium text-gray-100">Status</label>
-        <div className="mt-2">
-          <select 
-          id="status"
-          onChange={handleSelectedStatus}
-          value={status}
-          className="bg-white rounded-2xl">
-              <option value="pending">Pending</option>
-              <option value="in-progress">In-Progress</option>
-              <option value="completed">Completed</option>
-        </select>
-        </div>
-      </div>
-      <div>
-        <label htmlFor="priority" className="block text-sm/6 font-medium text-gray-100">Priority</label>
-        <div className="mt-2">
-          <select 
-          id="priority"
-          onChange={handleSelectedPrio}
-          value={prio}
-          className="bg-white rounded-2xl">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-        </select>
-        </div>
-      </div>
-       <div>
-        <div className="flex items-center justify-between">
-          <label htmlFor="deadline" className="block text-sm/6 font-medium text-gray-100">Deadline</label>
-        </div>
-        <div className="mt-2">
-          <input 
-          id ="deadline"
-          type="date" 
-          name="deadline"
-          onChange={handleInputChange}
-          value={taskData.deadline}
-          required 
-          className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
-
-        </div>
-      </div>
-      <button type="submit" className="w-50 rounded-m px-3 py-1.5 mt-5 rounded-4xl bg-blue-700 text-white">Submit Task</button>
-
-      
-    </form>
-
- 
-  </div>
- </div>
-        
-        </div>
-        </>
-    )
-}
+    </div>
+  );
+};
