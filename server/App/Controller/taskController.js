@@ -179,15 +179,15 @@ const updateTaskStatus = async(req,res)=>{
     try{
         const role = req.user.role;
         if(role!="employee"){
-            res.status(400).josn({
+            res.status(401).json({
                 message:"Access denied"
             })
         }else{
             let id = req.params.id;
-            const {status} = req.body;
+            const {status}= req.body;
             const updatedStatus = {
                 status
-            };
+            }
             let updateStatusvalue = await Task.findByIdAndUpdate(id,updatedStatus,{new:true});
             if(updateStatusvalue){
                 res.status(201).json({
@@ -200,7 +200,7 @@ const updateTaskStatus = async(req,res)=>{
             }
         }
     }catch(error){
-        res.status(401).json({
+        res.status(400).json({
             message:"Error in updating status"
         })
     }

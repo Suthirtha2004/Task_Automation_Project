@@ -28,7 +28,7 @@ export const UserDashboard = () => {
   const handleEditfunc = async(id)=>{
     const newStatus = statusEdit[id];
     try{
-        const res = await editTaskStatus(id,newStatus);
+        const res = await editTaskStatus(id, newStatus);
         getTaskList();
         if(res.status === 200 || res.status === 201){
             console.log("Status updated");
@@ -41,7 +41,6 @@ export const UserDashboard = () => {
   }
 
   useEffect(() => {
-    handleEditfunc();
     getTaskList();
 
   }, []);
@@ -108,15 +107,22 @@ export const UserDashboard = () => {
                 >
                   {task.priority.toUpperCase()} PRIORITY
                 </span>
-                <p>
-                    <button onClick={()=>handleEditfunc(task._id)}>Edit Status</button>
-                    <input 
-                     name = "status"
-                     value={statusEdit[task._id] || ""}
-                     onChange={(e)=>handleEditStatus(task._id,e.target.value)}
-                     placeholder="Change status"/>
+                <p className="flex items-center space-x-2 mt-1.5">
+<button 
+    onClick={() => handleEditfunc(task._id)}
+    className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600 transition"
+  >
+    Edit Status
+  </button>
+  <input 
+    name="status"
+    value={statusEdit[task._id] || ""}
+    onChange={(e) => handleEditStatus(task._id, e.target.value)}
+    placeholder="Change status"
+    className="border border-gray-300 px-2 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+  />
+</p>
 
-                </p>
               </li>
             ))}
           </ol>

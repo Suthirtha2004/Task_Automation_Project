@@ -112,6 +112,9 @@ export const AdminDashboard = () => {
                 <p className="text-sm text-gray-600 mt-1">
                   {task.description}
                 </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {task.status}
+                </p>
 
                 <div className="flex justify-between items-center mt-4">
                   <span
