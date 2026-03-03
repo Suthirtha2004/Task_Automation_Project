@@ -9,6 +9,7 @@ import { AuthContextProvider } from './context/AuthContext'
 import { AdminDashboard } from './Pages/AdminDashboard'
 import { UserDashboard } from './Pages/UserDashBoard'
 import { LandingPage } from './Pages/LandingPage'
+import { TaskChatbot } from './Components/chatbotInterface'
 
 function App() {
 
@@ -42,6 +43,10 @@ function App() {
     {
       path : '/teamflow/user',
       element : <UserDashboard/>
+    },
+    {
+      path : '/teamflow/admin/chatbot',
+      element : <TaskChatbot/>
     }
 
   ])

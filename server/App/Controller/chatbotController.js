@@ -2,41 +2,47 @@ const express = require('express');
 const Task = require('../Model/TaskModel')
 
 
-const buildPrompt = (taskData)=>{
-    let prompt = "Generate a task summary and make it brief and professional"
-
-    taskData.forEach((tasks,id)=>{
-      prompt += `${tasks.title} and ${tasks.description} - ${tasks.status} and deadline ${tasks.deadline}`;
-    })
+const buildPrompt = (taskData,message)=>{
+   let prompt = `Keep the response professional : ${message}\n`;
+    taskData.forEach((tasks, index) => {
+      prompt += `Task ${index + 1}: Title: ${tasks.title}, Description: ${tasks.description}, Status: ${tasks.status}, Deadline: ${tasks.deadline}\n`;
+    });
 
     return prompt;
+};
+const fetchtasksForChat = async(userId)=>{
+  const taskData = await Task.find({createdBy :userId });
+  return taskData;
 }
 
 const getTaskSummary = async(req,res)=>{
   try{
       let role = req.user.role;
       if(role!="admin"){
-          res.status(400).json({
+          return res.status(400).json({
             message:"Access denied"
           })
       }else{
-        const taskData = await Task.find({createdBy : req.user.id});
-        if(taskData){
-          const prompt = buildPrompt(taskData);
-          res.status(200).json({
+        const taskData = await fetchtasksForChat(req.user.id);
+        if(taskData && taskData.length > 0){
+          const prompt = buildPrompt(taskData, "");
+          return res.status(200).json({
             tasks: taskData,
             prompt : prompt
           }
           );
         }else{
-          res.status(400).json({
+          return res.status(400).json({
             message: "Task Not Found"
           })
         }
       }
   }catch(error){
     console.log(error.message);
+    return res.status(500).json({
+      message: "Internal server error"
+    });
   }
 }
 
-module.exports = { getTaskSummary, buildPrompt };
+module.exports = { getTaskSummary, buildPrompt,fetchtasksForChat };
