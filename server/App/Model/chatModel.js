@@ -9,7 +9,7 @@ const chatSchema = mongoose.Schema({
         type:String,
         required:true,
     },
-    question : {
+    message : {
         type: String,
         required : true
     }
