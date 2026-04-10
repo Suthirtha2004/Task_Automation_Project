@@ -56,6 +56,7 @@ let UserLogin = asyncHandler(async(req,res)=>{
         const accessToken = jwt.sign({
             loggedUser:{
                 id : loggedUser.id,
+                email : loggedUser.email,
                 role : loggedUser.role
             },
         },
@@ -69,5 +70,15 @@ let UserLogin = asyncHandler(async(req,res)=>{
 }
 });
 
+//Logout user 
+let UserLogout = async(req,res)=>{
+    try{
+        res.status(200).json({
+            message: "User logged out successfully"
+        })
+    }catch(error){
+        console.log(error.message);
+    }
+}
 
-module.exports = {UserRegister,UserLogin};
+module.exports = {UserRegister,UserLogin,UserLogout};

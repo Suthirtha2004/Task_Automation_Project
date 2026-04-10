@@ -88,23 +88,24 @@ const getTaskEmp = async(req,res)=>{
     try{
         let role = req.user.role;
         if(role!="employee"){
-            res.status(400).json({
+            return res.status(403).json({
                 message : "Access denied"
             });
         }
-        else{
-            const assginedTask = await Task.find({assignedTo : req.user.id});
-            console.log("Fetched tasks succesfully");
-            if(assginedTask){
-                res.status(201).json(assginedTask);
-            }else{
-                res.status(400).json({message : "Error in fetching tasks"});
-            }
+        // console.log("User email:", req.user.email);
+        const assignedTask = await Task.find({assignedTo : req.user.email});
+        // console.log("Found tasks:", assignedTask);
+        if(assignedTask && assignedTask.length > 0){
+            return res.status(200).json(assignedTask);
+        }else{
+            return res.status(200).json({message : "No tasks assigned", tasks: []});
         }
 
     }catch(error){
+        console.log("Error:", error);
         res.status(401).json({
-            message : "Error in getting tasks"
+            message : "Error in getting tasks",
+            error: error.message
         });
     }
 }

@@ -1,20 +1,46 @@
 import { useEffect, useState } from "react";
 import { editTaskStatus, getEmployeeTask } from "../Api/TaskService";
+import { logoutUser } from "../Api/AuthService";
+import { useNavigate } from "react-router-dom";
 
 export const UserDashboard = () => {
   const [taskData, setTaskData] = useState([]);
   const [statusEdit,setStatusEdit] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+  const logoutFunc = async()=>{
+    try{
+      const res = await logoutUser();
+      if(res.data === 201 || res.data === 200){
+        console.log("User log out succesfully");
+      }
+      navigate('/teamflow');
+      localStorage.removeItem("token");
+    }
+    catch(error){
+      console.log(error.message);
+    }
+  }
 
   const getTaskList = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const res = await getEmployeeTask();
-      if (res.status === 200 || res.status === 201) {
-        setTaskData(res.data);
-      } else {
-        console.log("Data not found");
-      }
+      if (res.status === 200) {
+          setTaskData(res.data);
+        } else {
+          setTaskData(res.data.tasks || []);
+          setError("Failed to fetch tasks");
+        }
+      
     } catch (error) {
+      setError(error.message || "Error fetching tasks");
       console.log(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,7 +91,11 @@ export const UserDashboard = () => {
         </div>
 
         {/* Tasks Grid */}
-        {taskData.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500">Loading tasks...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : taskData.length === 0 ? (
           <p className="text-center text-gray-500">
             No tasks assigned yet.
           </p>
