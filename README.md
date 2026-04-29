@@ -164,15 +164,11 @@ TASK AUTOMATION/
 ### Client
 ```bash
 npm run dev      # Start development server
-npm run build    # Build for production
-npm run preview  # Preview production build
-npm run lint     # Run ESLint
 ```
 
 ### Server
 ```bash
 npm start        # Start server with nodemon
-npm test         # Run tests
 ```
 
 ## 📄 License
