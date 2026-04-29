@@ -45,4 +45,16 @@ const getTaskSummary = async(req,res)=>{
   }
 }
 
-module.exports = { getTaskSummary, buildPrompt,fetchtasksForChat };
+//Summarize Prompts
+const getSummary = (message)=>{
+  const prompt = `Extract title ,description , priority , status and probable dealine(should be in the format of dd/mm/yyyy and please calculate it with respect to the present date) from the ${message} given and please produce the result in the form of 
+  -title
+  -description
+  -priority
+  -status
+  -deadline`
+
+  return prompt;
+}
+
+module.exports = { getTaskSummary, buildPrompt,fetchtasksForChat ,getSummary};
