@@ -27,7 +27,8 @@ const generateSummary = async(req,res)=>{
             });
             return;
         }
-        const message = req.body;
+        
+        const {message} = req.body;
         const prompt = getSummary(message);
         const result = await gemini_model.generateContent(prompt);
         const response = result.response;

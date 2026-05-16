@@ -5,12 +5,12 @@ const generate = require('../Services/genaiService');
 const generateSummary = require('../Services/summarizerAi');
 const router = express.Router();
 
-router.get('/chatbot',
+router.post('/chatbot',
     validateToken,
     validateRoles("admin"),
     generate);
 
-router.get('/summarizer',
+router.post('/summarizer',
     validateToken,
     validateRoles("admin"),
     generateSummary);

@@ -5,27 +5,30 @@ export const TaskChatbot = () => {
   const [promptmssg, setPromptmssg] = useState("");
   const [reply,setReply] = useState("");
   const [promptData , setpromptData] = useState({
-    message : ""
-});
+    message:""
+  });
 
   const getChatHelp = async(promptmessage) =>{
     try{
-      const res = await getChatbotService(promptmessage);
+      const res = await getChatbotService(promptData);
       setReply(res.data.summary);
-      setPromptmssg("");
+      setpromptData({
+        message:""
+      });
 
     }catch(error){
       console.log("Error message",error.message)
     }
   }
 
-  const getSummaryResponse = async(promptData)=>{
+  const getSummaryResponse = async()=>{
     try{
       const res = await getSummarizerService(promptData);
+      console.log(promptmssg);
       setReply(res.data.summary);
       setpromptData({
-        message: ""
-        });
+        message:""
+      })
 
     }catch(error){
       console.log("Error message",error.message);
@@ -51,22 +54,24 @@ export const TaskChatbot = () => {
           <input
             name="promptmessage"
             placeholder="Please write your enquiry..."
-            value={promptdata}
-            onChange={handleInputChange}
+            value={promptData.message}
+            onChange={(e)=> setpromptData({
+              message:e.target.value
+            })}
             required
             className="w-full px-4 py-3 rounded-xl border border-gray-300 
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 
                        focus:border-transparent transition duration-300"
           />
           <button
-            onClick={getChatHelp}
+            onClick={() => getChatHelp(promptmssg)}
             className="w-1/3 bg-indigo-600 text-white py-2 rounded-xl 
                        hover:bg-indigo-700 transition duration-300 mt-2.5"
           >
             Send Enquiry
           </button>
           <button
-            onClick={getSummaryResponse}
+            onClick={() => getSummaryResponse(promptmssg)}
             className="w-1/3 bg-indigo-600 text-white py-2 rounded-xl 
                        hover:bg-indigo-700 transition duration-300 mt-2.5 ml-2.5"
           >

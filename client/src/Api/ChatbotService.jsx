@@ -1,9 +1,9 @@
 import api from "./Api"
 
 export const getChatbotService=(message) =>{
-    return api.get("/chatbot",message);
+    return api.post("/chatbot", message);
 }
 
 export const getSummarizerService = (message)=>{
-    return api.get("/summarizer",message);
+    return api.post("/summarizer", message);
 }

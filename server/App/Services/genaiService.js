@@ -21,10 +21,10 @@ const gemini_model = googleAI.getGenerativeModel({
 const generate = async(req,res)=>{
     try{
         const taskData = await fetchtasksForChat(req.user.id);
-        const message = req.body;
+         const message = req.body;
         if(taskData.length === 0){
             res.status(400).json({
-                message: "Task not found"
+                summary: "Task not found"
             })
         }
         const prompt = buildPrompt(taskData,message);

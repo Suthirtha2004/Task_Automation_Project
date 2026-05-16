@@ -47,7 +47,7 @@ const getTaskSummary = async(req,res)=>{
 
 //Summarize Prompts
 const getSummary = (message)=>{
-  const prompt = `Extract title ,description , priority , status and probable dealine(should be in the format of dd/mm/yyyy and please calculate it with respect to the present date) from the ${message} given and please produce the result in the form of 
+  const prompt = `Extract title ,description , priority(should be either Low/Medium/High) , status(should be either In Progress/Pending/Completed) and probable dealine(should be in the format of dd/mm/yyyy and please calculate it with respect to the present date) from the ${message} given and please produce the result in the form of 
   -title
   -description
   -priority
