@@ -88,18 +88,18 @@ export const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-black p-6">
       {/* Header */}
       <div className="mb-8 flex justify-center">
-        <div className="bg-indigo-600 text-white px-8 py-3 rounded-2xl shadow-lg">
-          <h1 className="text-2xl font-bold">Admin Dashboard 🛠️</h1>
+        <div className="bg-green-900 text-white px-8 py-3 rounded-2xl shadow-lg">
+          <h1 className="text-2xl font-bold">Admin Dashboard </h1>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
         {/* Task List */}
         <div>
-          <h2 className="text-xl font-bold mb-4 text-gray-800">
+          <h2 className="text-xl font-bold mb-4 text-white">
             Assigned Tasks
           </h2>
 
