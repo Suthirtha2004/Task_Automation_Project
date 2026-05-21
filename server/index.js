@@ -6,6 +6,7 @@ const authrouter = require('./App/Router/authRoutes');
 const userRouter = require('./App/Router/userRoutes')
 const taskRouter = require('./App/Router/taskRoutes');
 const chatbotRouter = require('./App/Router/chatbotRoutes');
+const dashboardRouter = require('./App/Router/dashboardRoutes');
 const cron = require('node-cron');
 const { cronStatusChecker } = require('./App/CronJob/cronJob');
 require('dotenv').config();
@@ -28,6 +29,7 @@ app.use('/team', authrouter);
 app.use('/team/user',userRouter);
 app.use('/team/task',taskRouter);
 app.use('/team',chatbotRouter);
+app.use('/team',dashboardRouter);
 
 // MongoDB Connection
 mongoose.connect(process.env.DBURL)
