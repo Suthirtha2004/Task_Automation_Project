@@ -4,7 +4,7 @@
 import { Home, LayoutDashboard, Bot, ArrowLeft } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
-export default function Sidebar() {
+export default function UserSidebar() {
   const location = useLocation();
 
   const menuItems = [
@@ -20,13 +20,8 @@ export default function Sidebar() {
     },
     {
       name: "Dashboard",
-      path: "/teamflow/admin",
+      path: "/teamflow/user",
       icon: <LayoutDashboard size={20} />,
-    },
-    {
-      name: "AI Assistant",
-      path: "/teamflow/admin/chatbot",
-      icon: <Bot size={20} />,
     },
   ];
 
