@@ -13,18 +13,22 @@ const getAdminDashboard = async(req,res)=>{
             });
         }else{
         const completedTasks = await Task.countDocuments({
+            createdBy : req.user.id,
             status: "completed"
         });
 
         const pendingTasks = await Task.countDocuments({
+            createdBy : req.user.id,
             status: "pending"
         });
 
         const progressTasks = await Task.countDocuments({
+            createdBy : req.user.id,
             status : "in-progress"
         });
 
         const highPriority = await Task.countDocuments({
+            createdBy : req.user.id,
             priority : "high"
         })
 
@@ -90,18 +94,32 @@ const getEmployees = async(req ,res)=>{
             });
         }
         else{
+            // const employees = await User.find({
+            //     role: "employee"
+            // });
+
+            const assignedEmails = await Task.distinct(
+                    "assignedTo",
+                    {
+                    createdBy: req.user.id
+                    }
+                );
+            
             const employees = await User.find({
+                email: { $in: assignedEmails },
                 role: "employee"
             });
 
             const employeeData = [];
             for(const emp of employees){
                 const totalTasks = await Task.countDocuments({
-                    assignedTo : emp.email
+                    assignedTo : emp.email,
+                    createdBy : req.user.id
                 });
 
                 const completedTasks = await Task.countDocuments({
                     assignedTo : emp.email,
+                    createdBy : req.user.id,
                     status : "completed"
                 });
 

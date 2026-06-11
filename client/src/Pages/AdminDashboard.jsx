@@ -7,10 +7,13 @@ import {
 } from "../Api/TaskService";
 
 import { TaskChatbot } from "../Components/chatbotInterface";
-import { NavLink } from "react-router-dom";
+import { Navigate, NavLink } from "react-router-dom";
 import Sidebar from "../Components/Sidebar";
 import { getAdminDashboard, getEmpoyeeList } from "../Api/DashboardService";
 import AdminDashboardCard from "../Components/AdminDashboardCard";
+import { TaskTable } from "../Components/TaskTables";
+import { logoutUser } from "../Api/AuthService";
+import { useNavigate } from "react-router-dom";
 
 export const AdminDashboard = () => {
   const [taskList, setTaskList] = useState([]);
@@ -18,7 +21,8 @@ export const AdminDashboard = () => {
   const [status, setStatus] = useState("pending");
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [dashboardData, setdashboardData] = useState({});
-  const [employeeData , setemployeeData] = useState([]);
+  const [employees , setemployees] = useState([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const [taskData, setTaskData] = useState({
     title: "",
@@ -33,8 +37,6 @@ export const AdminDashboard = () => {
     try{
         const res = await getAdminDashboard();
         setdashboardData(res.data);
-        console.log(res.data);
-
     }
     catch(error){
       console.log(error.message);
@@ -44,7 +46,7 @@ export const AdminDashboard = () => {
   const getEmployeeTables = async()=>{
     try{
       const res = await getEmpoyeeList();
-      console.log(res.data);
+      setemployees(res.data.employeeData);
     }catch(error){
       console.log(error.message);
     }
@@ -72,6 +74,7 @@ export const AdminDashboard = () => {
           priority: prio,
           status: status,
         });
+        setIsFormOpen(false);
       }
     } catch (error) {
       console.log(error.message);
@@ -90,6 +93,7 @@ export const AdminDashboard = () => {
       setEditingTaskId(id);
       setPrio(task.priority);
       setStatus(task.status);
+      setIsFormOpen(true);
     }
   };
 
@@ -103,11 +107,27 @@ export const AdminDashboard = () => {
     if (editingTaskId) {
       await editTask(editingTaskId, taskData);
       setEditingTaskId(null);
+      setIsFormOpen(false);
     } else {
       postTaskData();
     }
     getTaskAssigned();
   };
+
+  const navigate = useNavigate();
+
+  const logoutFunc = async()=>{
+    try{
+      const res = await logoutUser();
+      if(res.status === 201 || res.status === 200){
+        console.log("User Logged out Successfully");
+      }
+      navigate('/teamflow');
+      localStorage.removeItem("token");
+    }catch(error){
+      console.log(error.message)
+    }
+  }
 
   useEffect(() => {
     getTaskAssigned();
@@ -116,115 +136,109 @@ export const AdminDashboard = () => {
   }, []);
 
   return (
-     
-    <div className="min-h-screen bg-[#09090b] flex text-gray-300 font-sans relative overflow-x-hidden">
-      {/* Background Micro-Grid & Glow Architecture */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
-      <div className="absolute top-0 right-1/4 w-[600px] h-[400px] bg-teal-500/5 blur-[120px] rounded-full pointer-events-none" />
-
+    // 1. Changed background to a slightly softer deep gray canvas so nested boxes pop out
+    <div className="min-h-screen bg-zinc-900 flex text-zinc-200 font-sans antialiased">
       <Sidebar />
 
-      {/* Main Content Workspace Wrapper */}
-      <div className="flex-1 p-6 lg:p-8 relative z-10 max-w-7xl mx-auto">
+      {/* Workspace Wrapper */}
+      <div className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-8 overflow-y-auto">
         
-        {/* Modern Flat Page Header */}
-        <div className="mb-10 flex justify-between items-center border-b border-[#1f1f23] pb-6">
+        {/* Page Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-700/60 pb-5">
           <div>
-            <h1 className="text-2xl font-light text-white tracking-tight">
-              Admin <span className="font-semibold text-teal-400">Dashboard</span>
-            </h1>
-            <p className="text-xs text-gray-500 font-mono mt-1">Operational Control Center</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Admin Dashboard</h1>
+            <p className="text-sm text-zinc-400 mt-0.5">Manage tasks, team allocation, and project status metrics.</p>
           </div>
+          <button
+              onClick={() => logoutFunc()}
+              className="sm:self-center bg-[#f96232] hover:bg-[#e05328] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 h-11 shrink-0"
+            >
+              Log Out
+            </button>
+          
+          {!isFormOpen && (
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="sm:self-center bg-[#f96232] hover:bg-[#e05328] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 h-11 shrink-0"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Create Task
+            </button>
+          )}
         </div>
 
-        {/* Dynamic Telemetry Banner Section */}
-        <section className="mb-10">
+        {/* Analytics Summary Row */}
+        <section>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <AdminDashboardCard 
-              title="Completed Tasks" 
-              value={dashboardData.completedTasks} 
-              change="Verified" 
-              statusType="success" 
-            />
-            <AdminDashboardCard 
-              title="In Progress" 
-              value={dashboardData.progressTasks} 
-              change="Active Sync" 
-              statusType="info" 
-            />
-            <AdminDashboardCard 
-              title="Pending Queue" 
-              value={dashboardData.pendingTasks} 
-              change="Idle" 
-              statusType="warning" 
-            />
-            <AdminDashboardCard 
-              title="High Priority" 
-              value={dashboardData.highPriority} 
-              change="Escalated" 
-              statusType="danger" 
-            />
+            <AdminDashboardCard title="Completed Tasks" value={dashboardData.completedTasks} change="Verified" statusType="success" />
+            <AdminDashboardCard title="In Progress" value={dashboardData.progressTasks} change="Active" statusType="info" />
+            <AdminDashboardCard title="Pending Queue" value={dashboardData.pendingTasks} change="Idle" statusType="warning" />
+            <AdminDashboardCard title="High Priority" value={dashboardData.highPriority} change="Escalated" statusType="danger" />
           </div>
         </section>
 
-        {/* Master Management Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Team Section Component Container */}
+        {/* 2. Isolated the table section inside a clean, defined background container */}
+        <section className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 space-y-4 shadow-sm">
+          <h2 className="text-sm font-bold text-white tracking-wide uppercase text-zinc-400">Team Allocation</h2>
+          <div className="rounded-lg overflow-hidden border border-zinc-800">
+            <TaskTable data={employees}/>
+          </div>
+        </section>
+
+        {/* Workspace Dual Column Layout */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Column A: Task Overview Panel (7 Columns) */}
-          <div className="lg:col-span-7">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-mono uppercase tracking-wider text-gray-400">
-                Assigned Workloads
-              </h2>
-              <span className="text-xs font-mono bg-[#141416] border border-[#1f1f23] px-2.5 py-0.5 rounded text-gray-500">
-                Total: {taskList.length}
+          {/* Main Workload Stream Block */}
+          <div className={`${isFormOpen ? "lg:col-span-7" : "lg:col-span-12"} space-y-4 transition-all duration-200`}>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-bold text-white tracking-wide uppercase text-zinc-400">Assigned Tasks</h2>
+              <span className="text-xs bg-zinc-950 border border-zinc-700 text-white px-2.5 py-0.5 rounded-full font-semibold">
+                {taskList.length}
               </span>
             </div>
 
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 3. Changed task card background to bg-zinc-950 (pure deep pitch) to cleanly contrast against the main bg-zinc-900 canvas */}
+            <ul className={`grid grid-cols-1 ${isFormOpen ? "sm:grid-cols-1 xl:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"} gap-4`}>
               {taskList.map((task) => (
                 <li
                   key={task._id}
-                  className="bg-[#141416]/50 border border-[#1f1f23] rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm transition-all duration-200 hover:border-[#27272a]"
+                  className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between transition hover:border-zinc-700 hover:shadow-md"
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-medium text-white tracking-tight text-base line-clamp-1">
-                        {task.title}
-                      </h3>
-                      <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded border tracking-wide whitespace-nowrap
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="font-semibold text-white tracking-tight text-sm line-clamp-1">{task.title}</h3>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded border capitalize tracking-wide whitespace-nowrap
                         ${
                           task.priority === "high"
-                            ? "bg-rose-500/5 text-rose-400 border-rose-500/20"
+                            ? "bg-rose-500/10 text-rose-400 border-rose-500/30"
                             : task.priority === "medium"
-                            ? "bg-amber-500/5 text-amber-400 border-amber-500/20"
-                            : "bg-emerald-500/5 text-emerald-400 border-emerald-500/20"
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                         }
                       `}>
                         {task.priority}
                       </span>
                     </div>
-                    
-                    <p className="text-xs text-gray-400 font-light line-clamp-2 leading-relaxed mb-4">
-                      {task.description}
-                    </p>
+                    <p className="text-xs text-zinc-400 font-normal line-clamp-2 leading-relaxed mb-4">{task.description}</p>
                   </div>
 
-                  <div className="border-t border-[#1f1f23]/60 pt-3 mt-2 flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-gray-500 lowercase bg-[#09090b] px-2 py-0.5 border border-[#1f1f23] rounded">
+                  <div className="border-t border-zinc-800/80 pt-3.5 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-zinc-300 bg-zinc-900 px-2.5 py-1 border border-zinc-800 rounded-md capitalize">
                       {task.status}
                     </span>
-                    
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(task._id)}
-                        className="px-2.5 py-1 text-[11px] font-medium bg-[#1c1c1f] border border-[#27272a] text-gray-300 rounded-md hover:text-white hover:bg-[#27272a] transition duration-150"
+                        className="px-3 py-1.5 text-xs font-semibold bg-zinc-900 border border-zinc-700 text-zinc-200 rounded-lg hover:text-white hover:bg-zinc-800 transition shadow-sm"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(task._id)}
-                        className="px-2.5 py-1 text-[11px] font-medium bg-rose-950/20 border border-rose-500/20 text-rose-400 rounded-md hover:bg-rose-500/20 transition duration-150"
+                        className="px-3 py-1.5 text-xs font-semibold bg-zinc-900/40 border border-zinc-800 text-zinc-400 rounded-lg hover:text-rose-400 hover:border-rose-900/40 transition"
                       >
                         Delete
                       </button>
@@ -235,61 +249,74 @@ export const AdminDashboard = () => {
             </ul>
           </div>
 
-          {/* Column B: Task Factory Form Control (5 Columns) */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#141416]/40 border border-[#1f1f23] rounded-xl p-6 backdrop-blur-sm sticky top-6">
-              <h2 className="text-sm font-mono uppercase tracking-wider text-white mb-6 pb-2 border-b border-[#1f1f23]">
-                {editingTaskId ? "Modify Node Sequence" : "Initialize Task Node"}
-              </h2>
+          {/* Form Action Section Container */}
+          {/* 4. Highlighted the form module card with an explicit white border contrast element */}
+          <div className={`${isFormOpen ? "lg:col-span-5 block" : "hidden"} w-full`}>
+            <div className="bg-zinc-950 border-2 border-zinc-700/80 rounded-xl p-5 sticky top-6 shadow-xl">
+              
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-zinc-800">
+                <h2 className="text-sm font-bold text-white tracking-tight">
+                  {editingTaskId ? "✏️ Edit Task Details" : "✨ Create New Task"}
+                </h2>
+                <button 
+                  onClick={() => {
+                    setIsFormOpen(false);
+                    setEditingTaskId(null);
+                  }}
+                  className="text-zinc-400 hover:text-white text-xs border border-zinc-700 bg-zinc-900 px-3 py-1 rounded-lg transition font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">Task Title</label>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Title</label>
                   <input
                     name="title"
                     value={taskData.title}
                     onChange={handleInputChange}
-                    placeholder="Provide micro-system identifier..."
-                    className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-teal-500/40 placeholder-gray-600 transition"
+                    placeholder="Provide a clear, brief task title"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 placeholder-zinc-500 transition font-medium"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">Description Framework</label>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Description</label>
                   <textarea
                     name="description"
                     value={taskData.description}
                     onChange={handleInputChange}
-                    placeholder="Detail explicit pipeline operational objectives..."
+                    placeholder="Outline the goals and deliverables..."
                     rows={3}
-                    className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-teal-500/40 placeholder-gray-600 transition resize-none"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 placeholder-zinc-500 transition resize-none font-medium"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">Assigned Target Signature</label>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Assignee Email</label>
                   <input
                     name="assignedTo"
                     value={taskData.assignedTo}
                     onChange={handleInputChange}
-                    placeholder="User token or identity identifier..."
-                    className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-teal-500/40 placeholder-gray-600 transition"
+                    placeholder="team-member@company.com"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 placeholder-zinc-500 transition font-medium"
                     required
                   />
                 </div>
 
                 <div className="flex gap-4">
                   <div className="w-1/2">
-                    <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">State Flow</label>
+                    <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Status</label>
                     <select
                       value={status}
                       onChange={(e) => {
                         setStatus(e.target.value);
                         setTaskData((p) => ({ ...p, status: e.target.value }));
                       }}
-                      className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-teal-500/40 transition"
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500 font-semibold transition"
                     >
                       <option value="pending">Pending</option>
                       <option value="in-progress">In Progress</option>
@@ -298,14 +325,14 @@ export const AdminDashboard = () => {
                   </div>
 
                   <div className="w-1/2">
-                    <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">Priority Core</label>
+                    <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Priority</label>
                     <select
                       value={prio}
                       onChange={(e) => {
                         setPrio(e.target.value);
                         setTaskData((p) => ({ ...p, priority: e.target.value }));
                       }}
-                      className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-teal-500/40 transition"
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500 font-semibold transition"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -315,34 +342,34 @@ export const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-gray-500 uppercase tracking-wider mb-1.5">Execution Milestone Window</label>
+                  <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1.5">Due Date</label>
                   <input
                     type="date"
                     name="deadline"
                     value={taskData.deadline}
                     onChange={handleInputChange}
-                    className="w-full bg-[#09090b] border border-[#1f1f23] rounded-lg px-3.5 py-2 text-sm text-gray-300 focus:outline-none focus:border-teal-500/40 transition"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3.5 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500 font-semibold transition color-scheme-dark"
                     required
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-teal-400 text-[#09090b] py-2.5 rounded-lg text-sm font-medium hover:bg-teal-300 shadow-[0_4px_20px_rgba(45,212,191,0.15)] transition-all duration-200 mt-2"
+                  className="w-full bg-[#f96232] hover:bg-[#e05328] text-white py-3 rounded-lg text-sm font-bold tracking-wider uppercase transition shadow-md mt-2"
                 >
-                  {editingTaskId ? "Commit Node Deployment" : "Execute Target Sequence"}
+                  {editingTaskId ? "Save System Changes" : "Publish Active Task"}
                 </button>
               </form>
             </div>
           </div>
-        </div>
-
-        {/* Global Copilot Floating Vector */}
+        </section>
+        
+        {/* Floating Copilot Overlay Portal Button */}
         <div className="fixed bottom-6 right-6 z-50">
           <NavLink to="/teamflow/admin/chatbot">
-            <button className="bg-teal-400 p-4 rounded-full shadow-[0_8px_24px_rgba(45,212,191,0.3)] hover:bg-teal-300 hover:scale-105 transition-all duration-200 group">
-              <svg className="w-6 h-6 text-[#09090b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            <button className="bg-[#f96232] hover:bg-[#e05328] p-4 rounded-full shadow-lg transition transform hover:scale-105">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </button>
           </NavLink>

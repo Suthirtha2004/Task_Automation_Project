@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -8,100 +9,99 @@ export const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const { isLoggedIn } = useAuth();
+
   const navLinks = [
-    { label: "Home", to: "/teamflow/home", isLink: true },
+    { label: "Home", to: isLoggedIn ? "/teamflow/home" : "/teamflow/login", isLink: true },
     { label: "About Us", to: "#about", isLink: false },
     { label: "Contact Us", to: "#contact", isLink: false },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-[#1f1f23] bg-black backdrop-blur-md px-6 py-4">
+    // Clean matte dark navigation header matching the main landing layout view frame
+    <nav className="sticky top-0 z-50 w-full border-b border-zinc-900 bg-[#070708]/90 backdrop-blur-md px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
-        {/* Brand Logo Group */}
-        <Link to="/teamflow" className="flex items-center space-x-2 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(45,212,191,0.2)] group-hover:scale-105 transition-transform duration-300">
-            <svg className="w-4 h-4 text-[#09090b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <span className="text-white font-medium tracking-tight text-lg">TaskFlow</span>
+        {/* Brand Typography Element matching Vetra header styles */}
+        <Link to="/teamflow" className="flex items-center gap-2 group">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#f96232] transition-transform duration-300 group-hover:scale-110" />
+          <span className="text-white font-bold tracking-tight text-md">TaskFlow</span>
         </Link>
 
-        {/* Desktop Central Navigation */}
+        {/* Desktop Central Navigation Structure */}
         <div className="hidden lg:flex items-center space-x-8">
-          {navLinks.map((link, idx) => (
+          {navLinks.map((link, idx) =>
             link.isLink ? (
-              <Link key={idx} to={link.to} className="text-sm font-light text-gray-400 hover:text-white transition-colors duration-200">
+              <Link key={idx} to={link.to} className="text-xs font-semibold text-zinc-400 hover:text-white transition duration-150 tracking-wide">
                 {link.label}
               </Link>
             ) : (
-              <a key={idx} href={link.to} className="text-sm font-light text-gray-400 hover:text-white transition-colors duration-200">
+              <a key={idx} href={link.to} className="text-xs font-semibold text-zinc-400 hover:text-white transition duration-150 tracking-wide">
                 {link.label}
               </a>
             )
-          ))}
+          )}
         </div>
 
-        {/* Desktop Action Buttons */}
-        <div className="hidden lg:flex items-center space-x-4">
+        {/* Desktop High-Contrast Conversion Buttons */}
+        <div className="hidden lg:flex items-center space-x-5">
           <Link to="/teamflow/login">
-            <button className="text-sm font-light text-gray-400 hover:text-white transition-colors duration-200 px-3 py-2">
+            <button className="text-xs font-semibold text-zinc-400 hover:text-white transition duration-150 tracking-wide py-2">
               Sign In
             </button>
           </Link>
           <Link to="/teamflow/signup">
-            <button className="text-sm font-medium bg-teal-400 text-[#09090b] px-4 py-2 rounded-xl hover:bg-teal-300 shadow-[0_0_20px_rgba(45,212,191,0.15)] transition-all duration-300">
+            <button className="text-xs font-bold bg-[#f96232] hover:bg-[#e05328] text-white px-4 py-2 rounded-lg transition duration-150 tracking-wide shadow-sm">
               Get Started
             </button>
           </Link>
         </div>
 
-        {/* Mobile Menu Action Toggle */}
+        {/* Mobile View Navigation Toggle Button */}
         <button
           onClick={toggleMobileMenu}
-          className="p-2 text-gray-400 hover:text-white hover:bg-[#18181b] border border-transparent hover:border-[#27272a] rounded-xl lg:hidden transition-all duration-200"
+          className="p-2 text-zinc-400 hover:text-white bg-[#111113] border border-zinc-800 rounded-lg lg:hidden transition duration-150"
           aria-label="Toggle Menu"
         >
           {isMobileMenuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           )}
         </button>
       </div>
 
-      {/* Clean Mobile Menu Panel */}
+      {/* Mobile Drawer Menu Overlays */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-[#09090b] border-b border-[#1f1f23] px-6 py-6 space-y-6 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col space-y-4">
-            {navLinks.map((link, idx) => (
+        <div className="lg:hidden absolute top-full left-0 w-full bg-[#070708] border-b border-zinc-900 px-6 py-5 space-y-5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex flex-col space-y-3">
+            {navLinks.map((link, idx) =>
               link.isLink ? (
-                <Link key={idx} to={link.to} className="text-base font-light text-gray-300 hover:text-white py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link key={idx} to={link.to} className="text-sm font-medium text-zinc-400 hover:text-white py-0.5" onClick={() => setIsMobileMenuOpen(false)}>
                   {link.label}
                 </Link>
               ) : (
-                <a key={idx} href={link.to} className="text-base font-light text-gray-300 hover:text-white py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                <a key={idx} href={link.to} className="text-sm font-medium text-zinc-400 hover:text-white py-0.5" onClick={() => setIsMobileMenuOpen(false)}>
                   {link.label}
                 </a>
               )
-            ))}
+            )}
           </div>
           
-          <div className="h-[1px] bg-[#1f1f23] w-full" />
+          <div className="h-[1px] bg-zinc-900 w-full" />
           
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-2.5">
             <Link to="/teamflow/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full text-center py-3 bg-[#18181b] border border-[#27272a] text-gray-300 rounded-xl font-light text-sm hover:text-white">
+              <button className="w-full text-center py-2 bg-[#111113] border border-zinc-800 text-zinc-300 rounded-lg font-semibold text-xs">
                 Sign In
               </button>
             </Link>
             <Link to="/teamflow/signup" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full text-center py-3 bg-teal-400 text-[#09090b] rounded-xl font-medium text-sm shadow-[0_0_20px_rgba(45,212,191,0.1)]">
+              <button className="w-full text-center py-2.5 bg-[#f96232] text-white rounded-lg font-bold text-xs shadow-sm">
                 Get Started Free
               </button>
             </Link>
